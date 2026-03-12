@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Card, CardHeader, CardContent } from '../components/ui/Card';
 import { Table, TableHead, TableHeader, TableBody, TableRow, TableCell } from '../components/ui/Table';
 import { ShoppingCart, Search, Filter, Eye, Edit2, Trash2 } from 'lucide-react';
@@ -11,6 +11,9 @@ const OrdersPage = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [searchTerm, setSearchTerm] = useState('');
+    const [showFilterDropdown, setShowFilterDropdown] = useState(false);
+    const [paymentFilter, setPaymentFilter] = useState('all');
+    const filterRef = useRef(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -31,6 +34,17 @@ const OrdersPage = () => {
         return () => clearInterval(intervalId);
     }, []);
 
+    // Handle click outside to close dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (filterRef.current && !filterRef.current.contains(event.target)) {
+                setShowFilterDropdown(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
     const handleDelete = async (id) => {
         if (!window.confirm('Are you sure you want to delete this order?')) return;
         try {
@@ -42,11 +56,15 @@ const OrdersPage = () => {
         }
     };
 
-    const filteredOrders = orders.filter(o =>
-        o.order_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        o.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        (o.company_id?.name || o.user_id?.name || '').toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    const filteredOrders = orders.filter(o => {
+        const matchesSearch = o.order_id?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            o.product_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            (o.company_id?.name || o.user_id?.name || '').toLowerCase().includes(searchTerm.toLowerCase());
+
+        const matchesPayment = paymentFilter === 'all' || o.payment_status === paymentFilter;
+
+        return matchesSearch && matchesPayment;
+    });
 
     return (
         <div className="space-y-6">
@@ -74,9 +92,39 @@ const OrdersPage = () => {
                                     className="pl-9 pr-4 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 w-64"
                                 />
                             </div>
-                            <button className="btn-secondary">
-                                <Filter className="w-4 h-4" /> Filter
-                            </button>
+                            <div className="relative" ref={filterRef}>
+                                <button
+                                    className={`btn-secondary flex items-center gap-2 ${paymentFilter !== 'all' ? 'bg-blue-50 border-blue-200 text-blue-700' : ''}`}
+                                    onClick={() => setShowFilterDropdown(!showFilterDropdown)}
+                                >
+                                    <Filter className="w-4 h-4" />
+                                    {paymentFilter === 'all' ? 'Filter' : paymentFilter}
+                                </button>
+
+                                {showFilterDropdown && (
+                                    <div className="absolute right-0 mt-2 w-48 bg-white rounded-xl shadow-xl border border-gray-100 z-50 overflow-hidden animate-in fade-in zoom-in duration-200">
+                                        <div className="p-2 border-bottom border-gray-50 bg-gray-50/50">
+                                            <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2">Payment Status</span>
+                                        </div>
+                                        <div className="p-1">
+                                            {['all', 'Paid', 'Pending'].map((status) => (
+                                                <button
+                                                    key={status}
+                                                    className={`w-full text-left px-3 py-2 text-sm rounded-lg transition-colors flex items-center justify-between group ${paymentFilter === status ? 'bg-blue-50 text-blue-700 font-bold' : 'text-gray-600 hover:bg-gray-50'
+                                                        }`}
+                                                    onClick={() => {
+                                                        setPaymentFilter(status);
+                                                        setShowFilterDropdown(false);
+                                                    }}
+                                                >
+                                                    <span className="capitalize">{status}</span>
+                                                    {paymentFilter === status && <div className="w-1.5 h-1.5 rounded-full bg-blue-600"></div>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     }
                 />
