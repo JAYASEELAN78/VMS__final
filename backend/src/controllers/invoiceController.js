@@ -30,7 +30,17 @@ export const createInvoice = async (req, res) => {
 // Get All Invoices
 export const getInvoices = async (req, res) => {
     try {
-        const invoices = await Invoice.find().populate('order_id').sort({ createdAt: - 1 });
+        let query = {};
+
+        // If client, only show their invoices
+        if (req.user.role === 'client') {
+            const clientOrders = await Order.find({ user_id: req.user._id }).select('_id');
+            const clientOrderIds = clientOrders.map(o => o._id);
+            query.order_id = { $in: clientOrderIds };
+        }
+
+        const invoices = await Invoice.find(query).populate('order_id').sort({ createdAt: - 1 });
+
         // Format exactly how the frontend expects it
         const formatted = invoices.map(inv => ({
             _id: inv._id,
@@ -55,6 +65,13 @@ export const generateInvoicePDF = async (req, res) => {
         });
 
         if (!invoice) return res.status(404).json({ message: 'Invoice not found' });
+
+        // Security check for clients
+        if (req.user.role === 'client') {
+            if (!invoice.order_id || invoice.order_id.user_id?.toString() !== req.user._id.toString()) {
+                return res.status(403).json({ message: 'Not authorized to view this invoice' });
+            }
+        }
 
         const doc = new PDFDocument({ margin: 50 });
 

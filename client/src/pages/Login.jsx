@@ -1,10 +1,11 @@
 import { useState } from 'react'
-import { Link } from 'react-router-dom'
+import { useNavigate, Link } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
 import toast from 'react-hot-toast'
 import { HiOutlineMail, HiOutlineLockClosed, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi'
 
 const Login = () => {
+    const navigate = useNavigate()
     const [email, setEmail] = useState('')
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
@@ -18,6 +19,7 @@ const Login = () => {
         try {
             await login(email, password)
             toast.success('Welcome back!')
+            navigate('/dashboard')
         } catch (err) {
             toast.error(err.response?.data?.message || 'Login failed')
         } finally {
@@ -34,8 +36,8 @@ const Login = () => {
                     <div className="absolute bottom-20 right-20 w-80 h-80 bg-red-400/10 rounded-full blur-3xl animate-pulse-slow" style={{ animationDelay: '1.5s' }}></div>
                 </div>
                 <div className="relative z-10 flex flex-col justify-center px-16">
-                    <div className="w-16 h-16 rounded-2xl bg-white/20 backdrop-blur-sm flex items-center justify-center mb-8">
-                        <span className="text-white font-bold text-2xl">S</span>
+                    <div className="w-20 h-20 mb-8">
+                        <img src="/assets/logo.png" alt="VMS Logo" className="w-full h-full object-contain filter brightness-0 invert" />
                     </div>
                     <h1 className="text-4xl font-bold text-white mb-4">Smart Job Work</h1>
                     <p className="text-xl text-red-100 mb-8">Order Management System</p>
@@ -56,8 +58,8 @@ const Login = () => {
             <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-gray-50">
                 <div className="w-full max-w-md">
                     <div className="lg:hidden mb-10 text-center">
-                        <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-red-500 to-red-600 flex items-center justify-center mx-auto mb-4">
-                            <span className="text-white font-bold text-xl">S</span>
+                        <div className="w-20 h-20 mx-auto mb-4">
+                            <img src="/assets/logo.png" alt="VMS Logo" className="w-full h-full object-contain" />
                         </div>
                         <h1 className="text-2xl font-bold text-gray-800">Smart Job Work</h1>
                     </div>

@@ -1,18 +1,44 @@
+import { useState, useEffect } from 'react'
 import { Link, useLocation } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
-import { HiOutlineViewGrid, HiOutlinePlusCircle, HiOutlineClipboardList, HiOutlineDocumentText, HiOutlineUser, HiOutlineLogout, HiOutlineX } from 'react-icons/hi'
-
-const navItems = [
-    { path: '/dashboard', label: 'Dashboard', icon: HiOutlineViewGrid },
-    { path: '/place-order', label: 'Place Order', icon: HiOutlinePlusCircle },
-    { path: '/my-orders', label: 'My Orders', icon: HiOutlineClipboardList },
-    { path: '/invoices', label: 'Invoices', icon: HiOutlineDocumentText },
-    { path: '/profile', label: 'Profile', icon: HiOutlineUser },
-]
+import { getOrders } from '../services/orderService'
+import {
+    HiOutlineViewGrid,
+    HiOutlinePlusCircle,
+    HiOutlineClipboardList,
+    HiOutlineDocumentText,
+    HiOutlineUser,
+    HiOutlineLogout,
+    HiOutlineX,
+    HiOutlineCurrencyRupee
+} from 'react-icons/hi'
 
 const Sidebar = ({ isOpen, onClose }) => {
     const location = useLocation()
     const { logout, user } = useAuth()
+    const [hasDeliveredOrder, setHasDeliveredOrder] = useState(false)
+
+    useEffect(() => {
+        const checkDelivered = async () => {
+            try {
+                const { data } = await getOrders()
+                const orders = Array.isArray(data) ? data : (data.orders || [])
+                setHasDeliveredOrder(orders.some(o => o.status?.toUpperCase() === 'DELIVERED'))
+            } catch (err) {
+                console.error('Failed to check delivered orders', err)
+            }
+        }
+        checkDelivered()
+    }, [])
+
+    const navItems = [
+        { path: '/dashboard', label: 'Dashboard', icon: HiOutlineViewGrid },
+        { path: '/place-order', label: 'Place Order', icon: HiOutlinePlusCircle },
+        { path: '/my-orders', label: 'My Orders', icon: HiOutlineClipboardList },
+        ...(hasDeliveredOrder ? [{ path: '/payments', label: 'Payments', icon: HiOutlineCurrencyRupee }] : []),
+        { path: '/invoices', label: 'Invoices', icon: HiOutlineDocumentText },
+        { path: '/profile', label: 'Profile', icon: HiOutlineUser },
+    ]
 
     return (
         <>

@@ -17,7 +17,7 @@ router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ email, isActive: true });
+        const user = await User.findOne({ email, isActive: true }).populate('company');
         if (!user) {
             return res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
@@ -38,7 +38,8 @@ router.post('/login', async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 role: user.role,
-                avatar: user.avatar
+                avatar: user.avatar,
+                company: user.company
             }
         });
     } catch (error) {
@@ -61,7 +62,7 @@ router.post('/google', async (req, res) => {
         const { email, name, picture, sub: googleId } = payload;
 
         // Check if user exists
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email }).populate('company');
 
         if (!user) {
             // Create new user from Google account
@@ -96,7 +97,8 @@ router.post('/google', async (req, res) => {
                 email: user.email,
                 phone: user.phone,
                 role: user.role,
-                avatar: user.avatar
+                avatar: user.avatar,
+                company: user.company
             }
         });
     } catch (error) {
@@ -270,7 +272,8 @@ router.post('/register', async (req, res) => {
                 name: companyName,
                 email: email,
                 phone: phone || '',
-                address: companyAddress || ''
+                address: companyAddress || '',
+                gstNumber: gstNumber || ''
             });
             await company.save();
             companyId = company._id;
@@ -289,15 +292,18 @@ router.post('/register', async (req, res) => {
 
         const token = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' });
 
+        const populatedUser = await User.findById(user._id).populate('company');
+
         res.status(201).json({
             success: true,
             token,
             user: {
-                id: user._id,
-                name: user.name,
-                email: user.email,
-                role: user.role,
-                company: user.company
+                id: populatedUser._id,
+                name: populatedUser.name,
+                email: populatedUser.email,
+                phone: populatedUser.phone,
+                role: populatedUser.role,
+                company: populatedUser.company
             }
         });
     } catch (error) {

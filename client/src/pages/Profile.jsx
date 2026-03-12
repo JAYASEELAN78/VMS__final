@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useAuth } from '../context/AuthContext'
 import api from '../services/api'
 import toast from 'react-hot-toast'
@@ -8,9 +8,22 @@ const Profile = () => {
     const { user, updateUser } = useAuth()
     const [loading, setLoading] = useState(false)
     const [form, setForm] = useState({
-        name: user?.name || '', email: user?.email || '', phone: user?.phone || '',
-        companyName: user?.company?.name || '', companyAddress: user?.company?.address || '', gstNumber: user?.company?.gstNumber || ''
+        name: '', email: '', phone: '',
+        companyName: '', companyAddress: '', gstNumber: ''
     })
+
+    useEffect(() => {
+        if (user) {
+            setForm({
+                name: user.name || '',
+                email: user.email || '',
+                phone: user.phone || '',
+                companyName: user.company?.name || '',
+                companyAddress: user.company?.address || '',
+                gstNumber: user.company?.gstNumber || ''
+            })
+        }
+    }, [user])
 
     const handleChange = (e) => setForm({ ...form, [e.target.name]: e.target.value })
 

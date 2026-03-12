@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { getStatusColor, formatDate, getPriorityColor } from '../utils/helpers'
-import { HiOutlineClock, HiOutlineCube, HiOutlineEye, HiOutlineTrash } from 'react-icons/hi'
+import { HiOutlineClock, HiOutlineCube, HiOutlineEye, HiOutlineTrash, HiOutlineCurrencyRupee } from 'react-icons/hi'
 
 const OrderCard = ({ order, onDelete }) => {
     return (
@@ -39,6 +39,20 @@ const OrderCard = ({ order, onDelete }) => {
                     >
                         <HiOutlineEye className="w-4 h-4" /> View
                     </Link>
+                    {order.status?.toUpperCase() === 'DELIVERED' && (
+                        order.payment_status === 'Paid' ? (
+                            <div className="flex items-center gap-1.5 px-3 py-1.5 bg-green-50 text-green-600 border border-green-100 rounded-lg text-sm font-bold uppercase tracking-wide">
+                                <HiOutlineCurrencyRupee className="w-4 h-4" /> Paid
+                            </div>
+                        ) : (
+                            <Link
+                                to="/payments"
+                                className="flex items-center gap-1.5 px-3 py-1.5 bg-green-600 text-white hover:bg-green-700 rounded-lg text-sm font-medium transition-all shadow-sm shadow-green-200"
+                            >
+                                <HiOutlineCurrencyRupee className="w-4 h-4" /> Payments
+                            </Link>
+                        )
+                    )}
                     {onDelete && (
                         <button
                             title="Cancel Order"

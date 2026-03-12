@@ -38,6 +38,7 @@ import dispatchRoutes from './routes/dispatchRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
+import razorpayRoutes from './routes/razorpayRoutes.js';
 
 const app = express();
 
@@ -65,7 +66,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // MongoDB Connection
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://dineshknight19_db_user:dinesh1910@cluster0.hepq0h5.mongodb.net/vms-garments"
+const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb+srv://dineshknight19_db_user:dinesh1910@cluster0.hepq0h5.mongodb.net/vms-garments"
 
 const createDefaultAdmin = async () => {
     try {
@@ -107,6 +108,33 @@ mongoose.connect(MONGODB_URI, {
         console.error('   4. Internet connection is stable');
     });
 
+// Basic routes
+app.get('/', (req, res) => {
+    res.send(`
+        <div style="font-family: sans-serif; padding: 20px; line-height: 1.6;">
+            <h1 style="color: #bc6c25;">V.M.S GARMENTS API</h1>
+            <p>Backend server is running on port ${process.env.PORT || 5000}.</p>
+            <div style="background: #fefae0; padding: 15px; border-radius: 8px; border-left: 5px solid #bc6c25;">
+                <h3>Frontend Access:</h3>
+                <ul>
+                    <li><strong>Client Portal:</strong> <a href="http://localhost:5173">http://localhost:5173</a></li>
+                    <li><strong>Admin Portal:</strong> <a href="http://localhost:5174">http://localhost:5174</a> (or 5175)</li>
+                </ul>
+            </div>
+            <p>For API health check, visit <a href="/api/health">/api/health</a></p>
+        </div>
+    `);
+});
+
+app.get('/api', (req, res) => {
+    res.json({
+        success: true,
+        message: 'V.M.S GARMENTS API Base Path',
+        health: '/api/health',
+        version: '1.0.0'
+    });
+});
+
 // API Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
@@ -135,6 +163,7 @@ app.use('/api/dispatches', dispatchRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/messages', messageRoutes);
+app.use('/api/razorpay', razorpayRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {

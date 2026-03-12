@@ -25,7 +25,7 @@ const Dashboard = () => {
 
     const cards = [
         { label: 'Total Orders', value: stats?.total || 0, icon: HiOutlineClipboardList, color: 'from-red-500 to-red-600', bg: 'bg-red-50', iconColor: 'text-red-500' },
-        { label: 'In Progress', value: (statusMap['Production Started'] || 0) + (statusMap['Quality Check'] || 0), icon: HiOutlineClock, color: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', iconColor: 'text-amber-500' },
+        { label: 'In Progress', value: (statusMap['Pending'] || 0) + (statusMap['Material Received'] || 0) + (statusMap['Processing'] || 0) + (statusMap['Quality Check'] || 0), icon: HiOutlineClock, color: 'from-amber-500 to-orange-500', bg: 'bg-amber-50', iconColor: 'text-amber-500' },
         { label: 'Completed', value: statusMap['Completed'] || 0, icon: HiOutlineCheckCircle, color: 'from-emerald-500 to-green-500', bg: 'bg-emerald-50', iconColor: 'text-emerald-500' },
         { label: 'Dispatched', value: (statusMap['Dispatched'] || 0) + (statusMap['Delivered'] || 0), icon: HiOutlineTruck, color: 'from-blue-500 to-cyan-500', bg: 'bg-blue-50', iconColor: 'text-blue-500' },
     ]
@@ -73,8 +73,8 @@ const Dashboard = () => {
                                         <HiOutlineClipboardList className="w-5 h-5 text-red-500" />
                                     </div>
                                     <div>
-                                        <p className="font-medium text-gray-800">{order.productName}</p>
-                                        <p className="text-xs text-gray-400">{order.orderId} · {formatDate(order.createdAt)}</p>
+                                        <p className="font-medium text-gray-800">{order.product_name || order.productName}</p>
+                                        <p className="text-xs text-gray-400">{order.order_id || order.orderId} · {formatDate(order.createdAt)}</p>
                                     </div>
                                 </div>
                                 <span className={`status-badge border ${getStatusColor(order.status)}`}>{order.status}</span>

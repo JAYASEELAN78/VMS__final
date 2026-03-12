@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import Order from '../models/Order.js';
 
 export const createOrder = async (req, res) => {
@@ -30,7 +31,12 @@ export const createOrder = async (req, res) => {
 
 export const getOrders = async (req, res) => {
     try {
-        const orders = await Order.find()
+        let query = {};
+        if (req.user.role === 'client') {
+            query.user_id = req.user._id;
+        }
+
+        const orders = await Order.find(query)
             .populate('company_id')
             .populate('user_id', 'name email')
             .sort({ createdAt: -1 });
@@ -53,6 +59,29 @@ export const updateOrder = async (req, res) => {
         const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
         res.json(order);
     } catch (err) { res.status(400).json({ error: err.message }); }
+};
+
+export const getOrderStats = async (req, res) => {
+    try {
+        let matchFilter = {};
+        if (req.user.role === 'client') {
+            matchFilter.user_id = new mongoose.Types.ObjectId(req.user._id);
+        }
+
+        const total = await Order.countDocuments(matchFilter);
+        const statuses = await Order.aggregate([
+            { $match: matchFilter },
+            { $group: { _id: '$status', count: { $sum: 1 } } }
+        ]);
+
+        const recentOrders = await Order.find(matchFilter)
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+        res.json({ total, statuses, recentOrders });
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
 };
 
 export const deleteOrder = async (req, res) => {

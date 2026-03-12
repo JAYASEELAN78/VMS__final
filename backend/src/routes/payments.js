@@ -1,18 +1,31 @@
 import express from 'express';
 import Payment from '../models/Payment.js';
+import { protect } from '../middleware/authMiddleware.js';
+import User from '../models/User.js';
 
 const router = express.Router();
 
 // Get all payments with pagination and filters
-router.get('/', async (req, res) => {
+router.get('/', protect, async (req, res) => {
     try {
         const { type, search, fromDate, toDate, page = 1, limit = 10 } = req.query;
 
-        const query = { isActive: true };
+        let query = { isActive: true };
+
+        // If client, only show their company's payments
+        if (req.user.role === 'client') {
+            const userWithCompany = await User.findById(req.user._id).populate('company');
+            if (userWithCompany?.company?.name) {
+                query.companyName = userWithCompany.company.name;
+            } else {
+                // If no company, they see nothing
+                return res.json({ success: true, data: [], pagination: { page: 1, limit, total: 0, pages: 0 } });
+            }
+        }
 
         if (type) query.type = type;
 
-        if (search) {
+        if (search && req.user.role !== 'client') {
             query.companyName = { $regex: search, $options: 'i' };
         }
 

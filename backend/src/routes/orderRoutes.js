@@ -6,9 +6,10 @@ import path from 'path';
 const upload = multer({ dest: 'uploads/' });
 
 const router = express.Router();
-import { createOrder, getOrders, getOrderById, updateOrder, deleteOrder } from '../controllers/orderController.js';
+import { createOrder, getOrders, getOrderById, updateOrder, deleteOrder, getOrderStats } from '../controllers/orderController.js';
 import { protect } from '../middleware/authMiddleware.js';
 
+router.get('/stats', protect, getOrderStats);
 router.post('/', protect, upload.single('designFile'), createOrder);
 router.get('/', protect, getOrders);
 router.get('/:id', protect, getOrderById);

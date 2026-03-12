@@ -5,7 +5,10 @@ import toast from 'react-hot-toast'
 import { HiOutlineMail, HiOutlineLockClosed, HiOutlineUser, HiOutlinePhone, HiOutlineOfficeBuilding, HiOutlineEye, HiOutlineEyeOff } from 'react-icons/hi'
 
 const Register = () => {
-    const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '', phone: '' })
+    const [form, setForm] = useState({
+        name: '', email: '', password: '', confirmPassword: '', phone: '',
+        companyName: '', gstNumber: '', companyAddress: ''
+    })
     const [showPassword, setShowPassword] = useState(false)
     const [loading, setLoading] = useState(false)
     const { register } = useAuth()
@@ -20,12 +23,14 @@ const Register = () => {
 
         setLoading(true)
         try {
-            // We still send the form, backend will handle missing company fields
             await register({
                 name: form.name,
                 email: form.email,
                 password: form.password,
-                phone: form.phone
+                phone: form.phone,
+                companyName: form.companyName,
+                gstNumber: form.gstNumber,
+                companyAddress: form.companyAddress
             })
             toast.success('Account created successfully!')
         } catch (err) {
@@ -39,6 +44,9 @@ const Register = () => {
         { name: 'name', label: 'Full Name', type: 'text', icon: HiOutlineUser, placeholder: 'John Doe', required: true },
         { name: 'email', label: 'Email Address', type: 'email', icon: HiOutlineMail, placeholder: 'you@company.com', required: true },
         { name: 'phone', label: 'Phone Number', type: 'tel', icon: HiOutlinePhone, placeholder: '+91 98765 43210' },
+        { name: 'companyName', label: 'Company Name', type: 'text', icon: HiOutlineOfficeBuilding, placeholder: 'Company Ltd' },
+        { name: 'gstNumber', label: 'GST Number', type: 'text', icon: HiOutlineOfficeBuilding, placeholder: '22AAAAA0000A1Z5' },
+        { name: 'companyAddress', label: 'Company Address', type: 'text', icon: HiOutlineOfficeBuilding, placeholder: '123 Business St' },
     ]
 
     return (

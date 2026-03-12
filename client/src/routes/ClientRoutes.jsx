@@ -7,6 +7,7 @@ import PlaceOrder from '../pages/PlaceOrder'
 import MyOrders from '../pages/MyOrders'
 import OrderDetails from '../pages/OrderDetails'
 import Invoices from '../pages/Invoices'
+import Payments from '../pages/Payments'
 import Profile from '../pages/Profile'
 
 const ClientRoutes = () => {
@@ -24,6 +25,7 @@ const ClientRoutes = () => {
                         <Route path="/my-orders" element={<MyOrders />} />
                         <Route path="/orders/:id" element={<OrderDetails />} />
                         <Route path="/invoices" element={<Invoices />} />
+                        <Route path="/payments" element={<Payments />} />
                         <Route path="/profile" element={<Profile />} />
                         <Route path="*" element={<Navigate to="/dashboard" />} />
                     </Routes>
