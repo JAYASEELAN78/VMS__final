@@ -34,8 +34,10 @@ const InvoicesPage = () => {
             document.body.appendChild(link);
             link.click();
             link.parentNode.removeChild(link);
-        } catch {
-            toast.error('Failed to download PDF');
+        } catch (err) {
+            if (err.message !== 'Network Error' && err.code !== 'ERR_NETWORK') {
+                toast.error('Failed to download PDF');
+            }
         }
     };
 

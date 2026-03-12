@@ -30,7 +30,12 @@ const Invoices = () => {
             link.setAttribute('download', `invoice-${number}.pdf`)
             document.body.appendChild(link)
             link.click()
-        } catch (err) { toast.error('Download failed') }
+        } catch (err) {
+            // IDM interception aborts the fetch causing a Network Error. Ignore it.
+            if (err.message !== 'Network Error' && err.code !== 'ERR_NETWORK') {
+                toast.error('Download failed')
+            }
+        }
     }
 
     return (
