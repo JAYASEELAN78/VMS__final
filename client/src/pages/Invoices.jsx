@@ -31,8 +31,9 @@ const Invoices = () => {
             document.body.appendChild(link)
             link.click()
         } catch (err) {
-            // IDM interception aborts the fetch causing a Network Error. Ignore it.
-            if (err.message !== 'Network Error' && err.code !== 'ERR_NETWORK') {
+            // IDM interception aborts the fetch before a response is received. 
+            // Only show an error if the server actually returned an error status.
+            if (err.response) {
                 toast.error('Download failed')
             }
         }

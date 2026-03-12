@@ -35,7 +35,8 @@ const InvoicesPage = () => {
             link.click();
             link.parentNode.removeChild(link);
         } catch (err) {
-            if (err.message !== 'Network Error' && err.code !== 'ERR_NETWORK') {
+            // IDM interception aborts the fetch before a response is received.
+            if (err.response) {
                 toast.error('Failed to download PDF');
             }
         }
