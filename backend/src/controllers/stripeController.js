@@ -1,0 +1,121 @@
+import Stripe from 'stripe';
+import Order from '../models/Order.js';
+import Invoice from '../models/Invoice.js';
+import Payment from '../models/Payment.js';
+import User from '../models/User.js';
+
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_dummy');
+
+// Helper to create records after payment success
+const createRecordsAfterPayment = async (orderId, sessionId) => {
+    try {
+        const order = await Order.findById(orderId).populate('user_id');
+        if (!order) return;
+
+        // 1. Create Invoice if not exists
+        const existingInvoice = await Invoice.findOne({ order_id: orderId });
+        if (!existingInvoice) {
+            const invoiceCount = await Invoice.countDocuments();
+            const invoice_id = `INV-${new Date().getFullYear()}-${(invoiceCount + 1).toString().padStart(4, '0')}`;
+
+            const newInvoice = new Invoice({
+                invoice_id,
+                order_id: orderId,
+                amount: order.estimatedCost || 0,
+                tax: 0,
+                total: order.estimatedCost || 0,
+                date: new Date()
+            });
+            await newInvoice.save();
+            console.log('Automatic invoice created for order:', order.order_id);
+        }
+
+        // 2. Create Payment record for history
+        const userWithCompany = await User.findById(order.user_id).populate('company');
+        const companyName = userWithCompany?.company?.name || 'Valued Client';
+
+        const newPayment = new Payment({
+            type: 'sales',
+            companyName: companyName,
+            date: new Date(),
+            paymentType: 'bank', // Stripe usually translates to card/bank
+            amount: order.estimatedCost || 0,
+            detail: `Online Stripe payment for Order ${order.order_id}. Session: ${sessionId}`,
+            isActive: true
+        });
+        await newPayment.save();
+        console.log('Stripe payment record created for:', companyName);
+
+    } catch (err) {
+        console.error('Auto-record creation error:', err);
+    }
+};
+
+export const createCheckoutSession = async (req, res) => {
+    try {
+        const { orderId, amount } = req.body;
+        const order = await Order.findById(orderId);
+
+        if (!order) {
+            return res.status(404).json({ success: false, message: 'Order not found' });
+        }
+
+        // Check for dummy mode
+        const isDummy = !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy';
+
+        if (isDummy) {
+            return res.status(200).json({
+                success: true,
+                simulated: true,
+                url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payments?success=true&orderId=${orderId}`
+            });
+        }
+
+        const session = await stripe.checkout.sessions.create({
+            payment_method_types: ['card'],
+            line_items: [
+                {
+                    price_data: {
+                        currency: 'inr',
+                        product_data: {
+                            name: `Payment for Order ${order.order_id}`,
+                            description: order.product_name,
+                        },
+                        unit_amount: Math.round(amount * 100),
+                    },
+                    quantity: 1,
+                },
+            ],
+            mode: 'payment',
+            success_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payments?success=true&orderId=${orderId}`,
+            cancel_url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payments?canceled=true`,
+            metadata: {
+                orderId: orderId.toString()
+            }
+        });
+
+        res.status(200).json({ success: true, url: session.url });
+    } catch (error) {
+        console.error('Stripe Session Error:', error);
+        res.status(500).json({ success: false, message: error.message });
+    }
+};
+
+export const verifyStripePayment = async (req, res) => {
+    try {
+        const { orderId } = req.body;
+
+        // This is a simplified verification for when the user returns to the success page
+        // In a production app, you should use Webhooks for reliability.
+        const order = await Order.findById(orderId);
+        if (order && order.payment_status !== 'Paid') {
+            await Order.findByIdAndUpdate(orderId, { payment_status: 'Paid' });
+            await createRecordsAfterPayment(orderId, 'SESSION_COMPLETED');
+            return res.status(200).json({ success: true, message: 'Payment verified' });
+        }
+
+        res.status(200).json({ success: true, message: 'Already paid or no order' });
+    } catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+};

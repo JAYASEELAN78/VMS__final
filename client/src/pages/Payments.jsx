@@ -13,8 +13,8 @@ import {
     HiX
 } from 'react-icons/hi'
 import { SiPhonepe, SiGooglepay } from 'react-icons/si'
-import { motion, AnimatePresence } from 'framer-motion'
 import { formatDate } from '../utils/helpers'
+import { loadStripe } from '@stripe/stripe-js'
 
 const Payments = () => {
     const navigate = useNavigate()
@@ -33,13 +33,30 @@ const Payments = () => {
     ]
 
     useEffect(() => {
-        fetchData()
-        const script = document.createElement('script')
-        script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-        script.async = true
-        document.body.appendChild(script)
-        return () => { document.body.removeChild(script) }
+        fetchData();
+        const query = new URLSearchParams(window.location.search);
+        if (query.get("success") && query.get("orderId")) {
+            verifyPayment(query.get("orderId"));
+        } else if (query.get("canceled")) {
+            toast.error("Payment canceled.");
+            // Clean URL
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
     }, [])
+
+    const verifyPayment = async (orderId) => {
+        try {
+            const { data } = await api.post('/api/stripe/verify', { orderId });
+            if (data.success) {
+                toast.success("Payment verified successfully!");
+                fetchData();
+                // Clean URL
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        } catch (err) {
+            console.error("Verification failed", err);
+        }
+    }
 
     const fetchData = async () => {
         setLoading(true)
@@ -69,66 +86,37 @@ const Payments = () => {
             return
         }
 
+        if (selectedMethod.id !== 'card') {
+            toast.error('Currently only Card payments are supported via Stripe')
+            return
+        }
+
         const order = selectedOrder
         setShowModal(false)
+        setLoading(true)
 
         try {
-            const { data: orderData } = await api.post('/api/razorpay/order', {
+            const { data } = await api.post('/api/stripe/create-checkout-session', {
                 amount: order.estimatedCost || order.price || 0,
                 orderId: order._id
             })
 
-            if (!orderData.success) throw new Error('Order creation failed')
-
-            if (orderData.simulated) {
-                toast.loading(`Processing ${selectedMethod.name} payment...`, { id: 'sim-pay' })
-                setTimeout(async () => {
-                    try {
-                        const { data: verifyData } = await api.post('/api/razorpay/verify', {
-                            razorpay_order_id: orderData.order.id,
-                            razorpay_payment_id: `sim_${selectedMethod.id}_123`,
-                            razorpay_signature: 'sim_signature',
-                            orderId: order._id
-                        })
-                        if (verifyData.success) {
-                            toast.success(`${selectedMethod.name} Payment Successful!`, { id: 'sim-pay' })
-                            setTimeout(() => navigate('/invoices'), 1500)
-                        }
-                    } catch (e) {
-                        toast.error('Payment failed', { id: 'sim-pay' })
-                    }
-                }, 2000)
+            if (data.simulated) {
+                toast.success("Simulated payment success! Redirecting...")
+                setTimeout(() => {
+                    window.location.href = data.url
+                }, 1500)
                 return
             }
 
-            const options = {
-                key: import.meta.env.VITE_RAZORPAY_KEY_ID || 'rzp_test_dummy_key',
-                amount: orderData.order.amount,
-                currency: orderData.order.currency,
-                name: "V.M.S GARMENTS",
-                description: `Payment for Order ${order.order_id}`,
-                order_id: orderData.order.id,
-                prefill: { method: selectedMethod.id === 'card' ? 'card' : (selectedMethod.id === 'upi' ? 'upi' : '') },
-                handler: async (response) => {
-                    try {
-                        const { data: verifyData } = await api.post('/api/razorpay/verify', {
-                            ...response,
-                            orderId: order._id
-                        })
-                        if (verifyData.success) {
-                            toast.success('Payment Successful!')
-                            setTimeout(() => navigate('/invoices'), 1500)
-                        }
-                    } catch (err) {
-                        toast.error('Verification error')
-                    }
-                },
-                theme: { color: "#dc2626" }
+            if (data.url) {
+                window.location.href = data.url;
             }
-            const rzp = new window.Razorpay(options)
-            rzp.open()
+
         } catch (err) {
-            toast.error(err.message || 'Payment initiation failed')
+            toast.error(err.response?.data?.message || 'Payment initiation failed')
+        } finally {
+            setLoading(false)
         }
     }
 

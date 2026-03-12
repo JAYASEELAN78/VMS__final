@@ -39,6 +39,7 @@ import userRoutes from './routes/userRoutes.js';
 import invoiceRoutes from './routes/invoiceRoutes.js';
 import messageRoutes from './routes/messageRoutes.js';
 import razorpayRoutes from './routes/razorpayRoutes.js';
+import stripeRoutes from './routes/stripeRoutes.js';
 
 const app = express();
 
@@ -164,6 +165,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/invoices', invoiceRoutes);
 app.use('/api/messages', messageRoutes);
 app.use('/api/razorpay', razorpayRoutes);
+app.use('/api/stripe', stripeRoutes);
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
