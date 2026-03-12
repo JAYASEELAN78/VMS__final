@@ -80,7 +80,8 @@ export const generateInvoicePDF = async (req, res) => {
 
         // Security check for clients
         if (req.user.role === 'client') {
-            if (!invoice.order_id || invoice.order_id.user_id?.toString() !== req.user._id.toString()) {
+            const orderUserId = invoice.order_id?.user_id?._id || invoice.order_id?.user_id;
+            if (!invoice.order_id || !orderUserId || orderUserId.toString() !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'Not authorized to view this invoice' });
             }
         }
