@@ -91,12 +91,13 @@ const OrdersPage = () => {
                                 <TableHeader>Product</TableHeader>
                                 <TableHeader>Date</TableHeader>
                                 <TableHeader>Status</TableHeader>
+                                <TableHeader>Payment Status</TableHeader>
                                 <TableHeader>Action</TableHeader>
                             </TableHead>
                             <TableBody>
                                 {filteredOrders.length === 0 ? (
                                     <TableRow>
-                                        <TableCell colSpan="6" className="text-center text-gray-500 py-8">
+                                        <TableCell colSpan="7" className="text-center text-gray-500 py-8">
                                             No orders found.
                                         </TableCell>
                                     </TableRow>
@@ -122,6 +123,9 @@ const OrdersPage = () => {
                                         </TableCell>
                                         <TableCell>
                                             <StatusBadge status={order.status} />
+                                        </TableCell>
+                                        <TableCell>
+                                            <StatusBadge status={order.payment_status} />
                                         </TableCell>
                                         <TableCell>
                                             <div className="flex items-center gap-1.5">
