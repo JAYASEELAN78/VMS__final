@@ -39,10 +39,13 @@ const Payments = () => {
         fetchData();
         const query = new URLSearchParams(window.location.search);
         if (query.get("success") && query.get("orderId")) {
-            verifyPayment(query.get("orderId"));
+            const orderId = query.get("orderId");
+            // Clean URL immediately to prevent double processing/toasts
+            window.history.replaceState({}, document.title, window.location.pathname);
+            verifyPayment(orderId);
         } else if (query.get("canceled")) {
-            toast.error("Payment canceled.");
-            // Clean URL
+            toast.error("Payment Declined");
+            // Clean URL immediately
             window.history.replaceState({}, document.title, window.location.pathname);
         }
     }, [])
@@ -51,10 +54,8 @@ const Payments = () => {
         try {
             const { data } = await api.post('/api/stripe/verify', { orderId });
             if (data.success) {
-                toast.success("Payment verified successfully!");
+                toast.success("Payment Verified Successful");
                 fetchData();
-                // Clean URL
-                window.history.replaceState({}, document.title, window.location.pathname);
             }
         } catch (err) {
             console.error("Verification failed", err);
