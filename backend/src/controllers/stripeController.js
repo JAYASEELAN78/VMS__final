@@ -60,19 +60,20 @@ export const createCheckoutSession = async (req, res) => {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
 
-        // Check for dummy mode
-        const isDummy = !process.env.STRIPE_SECRET_KEY || process.env.STRIPE_SECRET_KEY === 'sk_test_dummy';
-
-        if (isDummy) {
-            return res.status(200).json({
-                success: true,
-                simulated: true,
-                url: `${process.env.CLIENT_URL || 'http://localhost:5173'}/payments?success=true&orderId=${orderId}`
+        // Initialize Stripe here to ensure the latest key is used if the process didn't restart
+        const stripeKey = process.env.STRIPE_SECRET_KEY;
+        if (!stripeKey || stripeKey === 'sk_test_dummy') {
+            console.error('❌ STRIPE_SECRET_KEY is missing or dummy in environment');
+            return res.status(500).json({
+                success: false,
+                message: 'Stripe is not configured correctly on the server. Please provide a real Secret Key.'
             });
         }
 
+        const stripe = new Stripe(stripeKey);
+
         const session = await stripe.checkout.sessions.create({
-            payment_method_types: ['card'],
+            payment_method_types: ['card', 'upi', 'netbanking'],
             line_items: [
                 {
                     price_data: {

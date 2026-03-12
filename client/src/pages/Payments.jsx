@@ -87,11 +87,6 @@ const Payments = () => {
             return
         }
 
-        if (selectedMethod.id !== 'card') {
-            toast.error('Currently only Card payments are supported via Stripe')
-            return
-        }
-
         const order = selectedOrder
         setShowModal(false)
         setLoading(true)
