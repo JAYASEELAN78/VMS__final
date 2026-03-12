@@ -89,7 +89,7 @@ export const generateInvoicePDF = async (req, res) => {
         const doc = new PDFDocument({ margin: 50 });
 
         res.setHeader('Content-Type', 'application/pdf');
-        res.setHeader('Content-Disposition', `attachment; filename=invoice-${invoice.invoice_id}.pdf`);
+        res.setHeader('Content-Disposition', `inline; filename="invoice-${invoice.invoice_id}.pdf"`);
 
         doc.pipe(res);
 
