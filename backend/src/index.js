@@ -71,18 +71,18 @@ const MONGODB_URI = process.env.MONGODB_URI || process.env.MONGO_URI || "mongodb
 
 const createDefaultAdmin = async () => {
     try {
-        const adminExists = await User.findOne({ email: 'vmsgarments67@gmail.com' });
+        const adminExists = await User.findOne({ email: 'jayaseelanjaya67@gmail.com' });
         if (!adminExists) {
             const hashedPassword = await bcrypt.hash('123456', 10);
             await User.create({
                 name: 'Admin User',
-                email: 'vmsgarments67@gmail.com',
+                email: 'jayaseelanjaya67@gmail.com',
                 password: hashedPassword,
                 phone: '9080573831',
                 role: 'admin',
                 isActive: true
             });
-            console.log('✅ Default admin user created (vmsgarments67@gmail.com / 123456)');
+            console.log('✅ Default admin user created (jayaseelanjaya67@gmail.com / 123456)');
         }
     } catch (error) {
         console.error('Error creating default admin:', error);

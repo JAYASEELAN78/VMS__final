@@ -37,7 +37,7 @@ const seedDatabase = async () => {
         const hashedPassword = await bcrypt.hash('password123', 10);
         const admin = await User.create({
             name: 'Admin User',
-            email: 'vmsgarments67@gmail.com',
+            email: 'jayaseelanjaya67@gmail.com',
             password: hashedPassword,
             phone: '9876543210',
             role: 'admin',
@@ -119,7 +119,7 @@ const seedDatabase = async () => {
                 pincode: '641652',
                 phone: '9080573831',
                 phone2: '9442807770',
-                email: 'vmsgarments67@gmail.com',
+                email: 'jayaseelanjaya67@gmail.com',
                 gstin: '33AZRPM4425F2ZA'
             },
             bank: {
@@ -141,7 +141,7 @@ const seedDatabase = async () => {
 
         console.log('\n✅ Database seeded successfully!');
         console.log('\n📋 Login Credentials:');
-        console.log('   Email: vmsgarments67@gmail.com');
+        console.log('   Email: jayaseelanjaya67@gmail.com');
         console.log('   Password: password123\n');
 
         process.exit(0);

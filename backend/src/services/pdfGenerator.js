@@ -67,7 +67,7 @@ export const generateBillPDF = async (bill) => {
     const companyAddress2 = settings?.company?.address2 || '81 K, Madurai Raod, SankerNager, Tirunelveli Dt. 627357';
     const companyState = settings?.company?.state || 'Tamilnadu';
     const companyStateCode = settings?.company?.stateCode || '33';
-    const companyEmail = settings?.company?.email || 'vmsgarments67@gmail.com';
+    const companyEmail = settings?.company?.email || 'jayaseelanjaya67@gmail.com';
     const companyPhone = settings?.company?.phone || '9080573831';
     const companyMob = settings?.company?.phone2 || '8248893759';
 

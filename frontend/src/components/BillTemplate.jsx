@@ -72,7 +72,7 @@ const BillTemplate = ({ bill, settings, forPrint = false }) => {
     const companyAddress2 = settings?.company?.address2 || 'OFF : B1 K, Madurai Raod, SankerNager, Tirunelveli Dt. 627357';
     const companyState = settings?.company?.state || 'Tamilnadu';
     const companyStateCode = settings?.company?.stateCode || '33';
-    const companyEmail = settings?.company?.email || 'vmsgarments67@gmail.com';
+    const companyEmail = settings?.company?.email || 'jayaseelanjaya67@gmail.com';
     const companyPhone = settings?.company?.phone || '9080573831';
     const companyMob = settings?.company?.mob || '8248893759';
 

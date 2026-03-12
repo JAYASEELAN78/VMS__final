@@ -29,7 +29,7 @@ const ReportPrintTemplate = ({
         address2: '81 K, Madurai Road, SankerNager, Tirunelveli Dt. 627357',
         gstin: '33AZRPM4425F2ZA',
         phone: '9080573831',
-        email: 'vmsgarments67@gmail.com',
+        email: 'jayaseelanjaya67@gmail.com',
         ...companyInfo
     };
 

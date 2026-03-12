@@ -413,7 +413,7 @@ const SettingsPage = () => {
                                         <div className="company-banner-details">
                                             <span><strong>GSTIN:</strong> 33AZRPM4425F2ZA</span>
                                             <span><strong>Mobile:</strong> 90805 73831 / 94428 07770</span>
-                                            <span><strong>Email:</strong> vmsgarments67@gmail.com</span>
+                                            <span><strong>Email:</strong> jayaseelanjaya67@gmail.com</span>
                                         </div>
                                     </div>
                                 </div>

@@ -29,7 +29,7 @@ const EmptyBillTemplate = ({ settings, forPrint = false }) => {
                     <div className="address-line">OFF : {settings?.company?.address1 || '61C9, Anupparpalayam Puthur, Tirupur. 641652'}</div>
                     <div className="address-line">OFF : {settings?.company?.address2 || '81 K, Madurai Road, SankerNager, Tirunelveli Dt. 627357'}</div>
                     <div className="address-line">State: {settings?.company?.state || 'Tamil Nadu'} (Code {settings?.company?.stateCode || '33'})</div>
-                    <div className="address-line">Email: {settings?.company?.email || 'vmsgarments67@gmail.com'}</div>
+                    <div className="address-line">Email: {settings?.company?.email || 'jayaseelanjaya67@gmail.com'}</div>
                     <div className="address-line">Mob: {settings?.company?.phone || '9080573831'}</div>
                 </div>
                 <div className="invoice-section">

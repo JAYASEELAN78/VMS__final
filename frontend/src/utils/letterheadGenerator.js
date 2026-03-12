@@ -63,7 +63,7 @@ export const generateLetterhead = (content = '') => {
     });
 
     // Email (Center)
-    pdf.text('Email : vmsgarments67@gmail.com', pageWidth / 2, 42, { align: 'center' });
+    pdf.text('Email : jayaseelanjaya67@gmail.com', pageWidth / 2, 42, { align: 'center' });
 
     // B.O. Address (Right)
     const boAddress = [

@@ -12,7 +12,7 @@ const settingsSchema = new mongoose.Schema({
         pincode: String,
         phone: { type: String, default: '9080573831' },
         phone2: { type: String, default: '9442807770' },
-        email: { type: String, default: 'vmsgarments67@gmail.com' },
+        email: { type: String, default: 'jayaseelanjaya67@gmail.com' },
         gstin: { type: String, default: '33AZRPM4425F2ZA' },
         pan: String,
         logo: String
